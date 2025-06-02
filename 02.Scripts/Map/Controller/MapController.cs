@@ -22,7 +22,6 @@ public class MapController : MonoBehaviour
     private Map _currentMap; // 현재 맵
     private MapView _mapView; // 맵 뷰
 
-    private const string BOOTIE_TUTORIAL_KEY = "ShowBootyTutorial"; // 전리품 튜토리얼 완료 여부 저장 키
 
     private void Start()
     {
@@ -46,26 +45,16 @@ public class MapController : MonoBehaviour
         _mapManager = Manager.Instance.MapManager;
         
         ShowMap();
-        
-        // 보유한 전리품이 존재 && 전리품 튜토리얼을 완료하지 않았다면
-        if (Manager.Instance.DataManager.Booties.Count != 0 && !PlayerPrefs.HasKey(BOOTIE_TUTORIAL_KEY))
-        {
-            // 전리품 튜토리얼 완료처리
-            PlayerPrefs.SetInt(BOOTIE_TUTORIAL_KEY, 0);
-            PlayerPrefs.Save();
-                
-            // ServiceLocator를 통해 튜토리얼 컨트롤러를 가져온 후 튜토리얼 시작
-            var tutorialController = ServiceLocator.GetService<TutorialController>();
-            if (tutorialController)
-                tutorialController.StartTutorial();
-        }
     }
 
     // 맵 생성 + 맵 애니메이션 재생
     private void ShowMap()
     {
         if (_mapManager.canSkip)
+        {
             _mapAnimation.SkipAnimation();
+            CheckTutorial();
+        }
         else
         {
             _mapAnimation.PlayAnimation();
@@ -166,5 +155,10 @@ public class MapController : MonoBehaviour
         }
         // 플레이어가 이미 지나왔지만 방문하지 않은 노드 및 라인 색상 변경
         _mapView.ChangeNodeColorToNonMoveable(_playerPathController.CurrentNode, _playerPathController.Path, true);
+    }
+
+    private void CheckTutorial()
+    {
+
     }
 }

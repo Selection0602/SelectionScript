@@ -20,5 +20,6 @@ public class Manager : Singleton<Manager>
         SoundManager = transform.AddComponent<SoundManager>();
         CursorManager = transform.AddComponent<CursorManager>();
         AnalyticsManager = transform.AddComponent<AnalyticsManager>();
-        SaveManager = transform.AddComponent<SaveManager>();    }
+        SaveManager = transform.AddComponent<SaveManager>();    
+    }
 }

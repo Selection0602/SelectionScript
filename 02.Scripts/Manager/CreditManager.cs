@@ -4,6 +4,7 @@ using UnityEngine;
 public class CreditManager
 {
     private Dictionary<int, EndingSO> _endingDatas = new Dictionary<int, EndingSO>();
+    public IReadOnlyDictionary<int, EndingSO> EndingDatas => _endingDatas;
     private Dictionary<int, MiniGameDataSO> _miniGameDatas = new Dictionary<int, MiniGameDataSO>();
     private HashSet<int> _unlockedEndings = new HashSet<int>();
     private HashSet<int> _unlockedMiniGames = new HashSet<int>();

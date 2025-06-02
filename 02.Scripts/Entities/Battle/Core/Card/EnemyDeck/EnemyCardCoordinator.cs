@@ -56,4 +56,9 @@ public class EnemyCardCoordinator : ICardDrawer, ICardDistributor
     {
         return _deckHandler.IsFullDeck();
     }
+
+    public int GetAvailableDrawCount(int amount)
+    {
+        return _deckHandler.GetAvailableDrawCount(amount);
+    }
 }

@@ -46,6 +46,11 @@ public class Demon : Enemy, IUniqueSkillUser,ICardDrawer
         return _deckHandler.IsFullDeck();
     }
 
+    public int GetAvailableDrawCount(int amount)
+    {
+        return _deckHandler.GetAvailableDrawCount(amount);
+    }
+
     public async Task UseSkill()
     {
         if (!IsCanUseSkill) return;

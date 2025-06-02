@@ -228,6 +228,7 @@ public static class CardEffectRegistrar
     }
     private static ICommand Effect_Meditation(CardEffectContext effect)
     {
+        effect.User.DeckHandler.IgnoreCard(effect.CardData);
         return new UseBuffCard(BuffType.Cost, effect.User.Character, effect.CardData.ApplyValues[0]);
     }
     #endregion

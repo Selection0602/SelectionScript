@@ -63,12 +63,16 @@ public class DoorEscapeObject : BaseInteractObject
     //탈출시키는 함수
     public override void DisplayNextTalk()
     {
-        if (_currentSituation == 1)     //체크O && 칼X 
+        if (_currentSituation == 1) return;     //체크O && 칼X 
+
+        else if (_currentSituation == 2)        //체크O && 칼O
         {
-            return;
+            GameClear?.Invoke();
         }
-        else if (_currentSituation == 2) GameClear?.Invoke();   //체크O && 칼O
-        else GameClear?.Invoke();                               //체크X && 칼O
+        else                                    //체크X && 칼O
+        {
+            GameClear?.Invoke();
+        }
     }
 
     //칼 상태 true로 변환
@@ -94,6 +98,4 @@ public class DoorEscapeObject : BaseInteractObject
             _checkPanel.YesButton.onClick.RemoveListener(DisplayNextTalk);
         }
     }
-
-
 }

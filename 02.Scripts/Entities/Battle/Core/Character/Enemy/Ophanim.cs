@@ -68,7 +68,6 @@ public class Ophanim : Enemy, IProphet, ISummoner, IUniqueSkillUser, ICardDrawer
     public async Task DrawCard(int count, bool isFirstTurn)
     {
         var drawCount = count;
-
         if (isFirstTurn)
         {
             drawCount -= 2;
@@ -76,13 +75,17 @@ public class Ophanim : Enemy, IProphet, ISummoner, IUniqueSkillUser, ICardDrawer
             await _deckHandler.DrawCard("Calling"); // 부름 카드를 가지고 시작 
             _deckHandler.IgnoreCard("Truth"); // 이 다음부터는 진실 카드를 뽑기에서 무시
         }
-
         await _deckHandler.DrawCard(drawCount, false);
     }
 
     public bool IsFullDeck()
     {
         return _deckHandler.IsFullDeck();
+    }
+
+    public int GetAvailableDrawCount(int amount)
+    {
+        return _deckHandler.GetAvailableDrawCount(amount);
     }
 
     public override async Task Damage(int amount)

@@ -35,7 +35,7 @@ public class UpperBar : MonoBehaviour
     private readonly string[] hpDisplayScenes = { "MapScene", "BattleScene", "RestScene" , "RandomEventScene", "MiniGameScene_01", "MiniGameScene_02", "MiniGameScene_03"};
 
     // 맵씬과 미니게임씬 목록 (TypeDescButton이 표시될 씬들)
-    private readonly string[] typeDescButtonScenes = { "MapScene", "MiniGameScene_01", "MiniGameScene_02", "MiniGameScene_03" };
+    private readonly string[] typeDescButtonScenes = { "MapScene"};
     
     // MapScenePopupController 참조
     private MapScenePopupController popupController;

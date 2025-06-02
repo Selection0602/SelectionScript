@@ -78,11 +78,11 @@ public class LoadingController : ControllerUI
         },
         {
             "Ophanim",
-            (0, new[] { "ophanim" })
+            (1, new[] { "ophanim" })
         },
         {
             "Demon",
-            (9, new[] { "Idle", "Attack_1", "Attack_2", "Attack_3", "Attack_4", "Attack_5", "Death", "Teleport_In", "Teleport_Out" })
+            (8, new[] { "Idle", "Attack_1", "Attack_2", "Attack_4", "Attack_5", "Death", "Teleport_In", "Teleport_Out" })
         },
         {
             "Lib",
@@ -98,7 +98,7 @@ public class LoadingController : ControllerUI
         },
         {
             "Valkyrie",
-            (5, new[] { "Idle", "Attack", "Death", "Hit", "Move" })
+            (4, new[] { "Idle", "Attack", "Death", "Move" })
         },
         {
             "Bacteriaman",
@@ -170,12 +170,12 @@ public class LoadingController : ControllerUI
             }
         },
         {
-            "Valkyrie",
-            new UIImageProperties {
-                Position = new Vector2(-13f, 98f),
-                Size = new Vector2(288f, 336f),
-                Scale = new Vector3(1.3f, 1.3f, 1.0f)
-            }
+           "Valkyrie",
+           new UIImageProperties {
+               Position = new Vector2(-13f, 98f),
+               Size = new Vector2(288f, 336f),
+               Scale = new Vector3(1.3f, 1.3f, 1.0f)
+           }
         },
         {
             "Demon",
@@ -214,13 +214,13 @@ public class LoadingController : ControllerUI
             }
         },
         {
-            "Nunna",
-            new UIImageProperties
-            {
-                Position = new Vector2(-7f, 104f),
-                Size = new Vector2(368f, 331.2f),
-                Scale = new Vector3(1.3f, 1.3f, 1.0f)
-            }
+           "Nunna",
+           new UIImageProperties
+           {
+               Position = new Vector2(-7f, 104f),
+               Size = new Vector2(368f, 331.2f),
+               Scale = new Vector3(1.3f, 1.3f, 1.0f)
+           }
         },
         {
             "Whitehair",
@@ -265,7 +265,7 @@ public class LoadingController : ControllerUI
     }
     #endregion
     #region ------------------- Setup -------------------
-    public async void Setup(LoadingSceneData data)
+    public async Task Setup(LoadingSceneData data)
     {
         if (canvasGroup != null)
         {
@@ -538,7 +538,6 @@ public class LoadingController : ControllerUI
         ApplyImageStyle(controllerName);
 
         // 애니메이션 상태 변경 코루틴 시작
-        StartCoroutine(ChangeAnimationLoop(stateCount, stateNames));
     }
 
     // 애니메이션 상태 정보를 가져오는 메서드
@@ -666,39 +665,6 @@ public class LoadingController : ControllerUI
         {
             // RectTransform이 아닌 경우에는 기본 스케일 적용
             loadingImage.transform.localScale = defaultScaleValue;
-        }
-    }
-
-    // 일정 시간마다 애니메이션 상태를 변경하는 코루틴
-    private IEnumerator ChangeAnimationLoop(int stateCount, string[] stateNames)
-    {
-        yield return new WaitForSeconds(1f); // 초기 애니메이션이 적용될 시간을 조금 더 줌
-
-
-        while (true)
-        {
-            yield return new WaitForSeconds(animationChangeInterval);
-
-            if (imageAnimator != null && stateCount > 1)
-            {
-                // 랜덤 상태 인덱스 선택 (Idle을 피하기 위해 1부터 시작)
-                int randomState = Random.Range(1, stateCount);
-
-                // 상태 이름 가져오기
-                string stateName = randomState < stateNames.Length ? stateNames[randomState] : "Idle";
-
-                // 애니메이터 파라미터 설정
-                imageAnimator.SetInteger("isActive", randomState);
-
-
-                // 직접 해당 상태로 전환
-                imageAnimator.Play(stateName, 0, 0f);
-
-
-                // 애니메이터 업데이트 강제 실행
-                imageAnimator.Update(0f);
-
-            }
         }
     }
     #endregion

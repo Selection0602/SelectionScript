@@ -17,6 +17,8 @@ public class MapScene : SceneBase
     [SerializeField] private NodeSceneMapping _nodeSceneMapping;
     [SerializeField] private Image _fadeImage;
 
+    private const string BOOTIE_TUTORIAL_KEY = "ShowBootyTutorial"; // 전리품 튜토리얼 완료 여부 저장 키
+    
     override protected void OnStart(object data)
     {
         base.OnStart(data);
@@ -105,7 +107,19 @@ public class MapScene : SceneBase
         {
             onComplete?.Invoke();
 
-                _fadeImage.gameObject.SetActive(false);
+            _fadeImage.gameObject.SetActive(false);
+            // 보유한 전리품이 존재 && 전리품 튜토리얼을 완료하지 않았다면
+            if (Manager.Instance.DataManager.Booties.Count != 0 && !PlayerPrefs.HasKey(BOOTIE_TUTORIAL_KEY))
+            {
+                // 전리품 튜토리얼 완료처리
+                PlayerPrefs.SetInt(BOOTIE_TUTORIAL_KEY, 0);
+                PlayerPrefs.Save();
+
+                // ServiceLocator를 통해 튜토리얼 컨트롤러를 가져온 후 튜토리얼 시작
+                var tutorialController = ServiceLocator.GetService<TutorialController>();
+                if (tutorialController)
+                    tutorialController.StartTutorial();
+            }
         });
     }
 

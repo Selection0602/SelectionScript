@@ -49,6 +49,8 @@ public class MapGenerator : MonoBehaviour
     /// </summary>
     private void Start()
     {
+        Manager.Instance.CreditManager.UnlockMiniGameAndSave(2);
+
         //랜덤 생성될 곳 정하기 (도서관, 피아노 방)
         int widthRand = 0, heightRand = 0;
 

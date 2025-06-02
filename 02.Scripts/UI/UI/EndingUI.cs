@@ -1,6 +1,4 @@
-using DG.Tweening;
 using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -26,6 +24,8 @@ public class EndingUI : BaseUI, IEndingView
     [SerializeField] private Image _darkPanel;
 
     private int targetIndex;
+    
+    private const int SELECTION_ENDING_INDEX = 11;
 
     public void Initialize(int endingIndex)
     {
@@ -67,8 +67,22 @@ public class EndingUI : BaseUI, IEndingView
             yield break;
         }
 
+        if(ending.Index == SELECTION_ENDING_INDEX)
+            endingImage.color = Color.black;
+        
         // 본 엔딩을 DataManager에 기록
         Manager.Instance.DataManager.AddViewedEnding(ending.Index);
+
+        if (CheckSelectionEnding())
+        {
+            returnButton.onClick.RemoveAllListeners();
+            returnButton.onClick.AddListener(() =>
+            {
+                ClearEnding();
+                Initialize(SELECTION_ENDING_INDEX);
+            });
+        }
+            
 
         if (endingImage != null && ending.EndingImage != null)
         {
@@ -142,7 +156,7 @@ public class EndingUI : BaseUI, IEndingView
     private void ReturnToLobby()
     {
         Manager.Instance.DataManager.ClearCharacterData();
-
+        Manager.Instance.SaveManager.ClearAllData();
         var labelMapping = new AssetLabelMapping[]
         {
             new AssetLabelMapping
@@ -184,6 +198,24 @@ public class EndingUI : BaseUI, IEndingView
         }
 
         SceneBase.LoadScene("LoadingScene", loadData);
+    }
+
+    private bool CheckSelectionEnding()
+    {
+        var dataManager = Manager.Instance.DataManager;
+        var creditManager = Manager.Instance.CreditManager;
+        
+        return dataManager.ViewedEndings.Count == creditManager.EndingDatas.Count - 1 &&
+               !dataManager.ViewedEndings.Contains(SELECTION_ENDING_INDEX);
+    }
+    
+    private void ClearEnding()
+    {
+        endingImage.sprite = null;
+        endingText.text = "";
+        endingNameText.text = "";
+        returnButton.gameObject.SetActive(false);
+        _darkPanel.gameObject.SetActive(false);
     }
 }
 

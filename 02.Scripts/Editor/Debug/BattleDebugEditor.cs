@@ -1,4 +1,3 @@
-using NUnit.Framework;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -99,6 +98,13 @@ public class BattleDebugWindow : EditorWindow
             player.DeckHandler.DrawCard("ReinforceCAttack", true);
         }
 
+        GUILayout.Space(10);
+        if (GUILayout.Button("카드 1장 뽑기"))
+        {
+            var player = (SceneBase.Current as BattleSceneController).BattleManager.Player;
+            player.DeckHandler.DrawCard(1, true, player);
+        }
+        
         GUILayout.Space(10);
         if (GUILayout.Button("코스트 회복"))
         {

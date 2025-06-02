@@ -32,6 +32,7 @@ public class AnalyticsManager : MonoBehaviour
                 var options = new InitializationOptions().SetEnvironmentName(_environment);
                 await UnityServices.InitializeAsync(options);
                 AnalyticsService.Instance.StartDataCollection();
+                Debug.Log($"애널리틱스 초기화 완료, 환경: {_environment}");
             }
             catch (Exception e)
             {
@@ -50,8 +51,6 @@ public class AnalyticsManager : MonoBehaviour
     /// <param name="eventName">이벤트 이름</param>
     public void LogEvent(string eventName)
     {
-        if (Application.isEditor) return;
-        
         try
         {
             AnalyticsService.Instance.RecordEvent(eventName);
@@ -70,8 +69,6 @@ public class AnalyticsManager : MonoBehaviour
     /// <param name="parameters">파라미터들이 들어간 딕셔너리(파라미터 이름 : 파라미터 값)</param>
     public void LogEvent(string eventName, Dictionary<string, object> parameters)
     {
-        if (Application.isEditor) return;
-
         try
         {
             var customEvent = new CustomEvent(eventName);
@@ -97,8 +94,6 @@ public class AnalyticsManager : MonoBehaviour
     /// <param name="paramValue">파라미터 값</param>
     public void LogEvent(string eventName, string paramName, object paramValue)
     {
-        if (Application.isEditor) return;
-
         try
         {
             var customEvent = new CustomEvent(eventName) { { paramName, paramValue } };

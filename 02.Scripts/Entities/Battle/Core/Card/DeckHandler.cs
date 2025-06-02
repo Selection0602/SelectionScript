@@ -140,6 +140,12 @@ public abstract class DeckHandler : MonoBehaviour
         return HandCards.Count == _maxCardCount;
     }
 
+    public int GetAvailableDrawCount(int amount)
+    {
+        int space = _maxCardCount - HandCards.Count;
+        return Mathf.Min(space, amount);
+    }
+
     public void IgnoreCard(CardData data)
     {
         _ignoreCardDatas.Add(data);

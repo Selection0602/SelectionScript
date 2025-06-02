@@ -93,7 +93,8 @@ public class TutorialUI : MonoBehaviour
             // 현재 인덱스의 데이터의 타겟리스트 가져오기
             List<GameObject> targets = _getTargetsFunc(data);
             // 타겟 부모를 튜토리얼 UI 쪽으로 변경
-            SetParentTargets(targets);
+            if(_currentTutorialType != TutorialType.Memory)
+                SetParentTargets(targets);
         }
     }
     
@@ -198,6 +199,7 @@ public class TutorialUI : MonoBehaviour
             controller.CompleteTutorial(_currentTutorialType);
 
         _onComplete?.Invoke();
+        Destroy(gameObject);
     }
     
     private void OnDestroy()

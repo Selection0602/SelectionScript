@@ -279,6 +279,7 @@ public class AMPlayer : MonoBehaviour
 
                             if (isExit)
                             {
+                                Manager.Instance.CreditManager.UnlockMiniGameAndSave(2);
                                 OnGameClear?.Invoke();
                                 return;
                             }

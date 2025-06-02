@@ -27,6 +27,7 @@ public interface ICardUser
 public interface ICardDrawer
 {
     public bool IsFullDeck();
+    public int GetAvailableDrawCount(int amount);
     public Task DrawCard(int count, bool isFirstTurn); //카드 뽑기
 }
 

@@ -20,6 +20,10 @@ public class SoundManager : MonoBehaviour
 
     private Dictionary<BGMType, AudioClip> _bgmClips = new Dictionary<BGMType, AudioClip>();
     private Dictionary<SFXType, AudioClip> _sfxClips = new Dictionary<SFXType, AudioClip>();
+    private List<string> _bgmLabels = new List<string>();
+    private List<string> _sfxLabels = new List<string>();
+    private string _bgmLabel = string.Empty;
+    private string _sfxLabel = string.Empty;
 
     // 오디오 소스 풀
     private const int SFX_SOURCE_COUNT = 10;
@@ -28,7 +32,7 @@ public class SoundManager : MonoBehaviour
 
     public float MasterVolume { get; private set; } = 1f;
     public float BGMVolume { get; private set; } = 1f;
-    public float SFXVolume { get; private set; } = 1f;
+    public float SFXVolume { get; private set; }= 1f;
 
     private Dictionary<string, BGMType> _sceneBGMDict = new Dictionary<string, BGMType>()
     {
@@ -46,11 +50,10 @@ public class SoundManager : MonoBehaviour
     
     private void Start()
     {
-        // 오디오 믹서 가져오기
         _audioMixer = Resources.Load("AudioMixer/AudioMixer") as AudioMixer;
 
-        // 씬 로드 및 언로드 이벤트 등록
         SceneManager.sceneUnloaded += OnSceneUnloaded;
+
         SceneManager.sceneLoaded += OnSceneLoaded;
         
         // BGM 소스 생성
@@ -63,7 +66,6 @@ public class SoundManager : MonoBehaviour
 
             if (_audioMixer != null)
             {
-                // 오디오 믹서와 오디오 소스 연결
                 AudioMixerGroup[] groups = _audioMixer.FindMatchingGroups("BGM");
                 if (groups.Length > 0)
                     _bgmSource.outputAudioMixerGroup = groups[0];
@@ -73,7 +75,6 @@ public class SoundManager : MonoBehaviour
         // 효과음 소스 풀 초기화
         InitializeSfxPool();
 
-        // 볼륨 설정 로드 및 적용
         LoadVolumeSetting();
         
         SetMasterVolume(MasterVolume);
@@ -84,7 +85,6 @@ public class SoundManager : MonoBehaviour
             InitializeAudioClips(SceneManager.GetActiveScene().name);
     }
 
-    #region 어드레서블 데이터 로드
     // 어드레서블에서 오디오 클립 로드
     private async void InitializeAudioClips(string sceneName)
     {
@@ -134,10 +134,11 @@ public class SoundManager : MonoBehaviour
 
     private async Task LoadBGMClips(string sceneName)
     {
-        var bgmLabels = new List<string> { "BGM", sceneName };
+        _bgmLabels.Add("BGM");
+        _bgmLabels.Add(sceneName);
 
         List<AudioClip> bgmList =
-            await Manager.Instance.AddressableManager.LoadGroupAssetsAsync<AudioClip>(bgmLabels,
+            await Manager.Instance.AddressableManager.LoadGroupAssetsAsync<AudioClip>(_bgmLabels,
                 Addressables.MergeMode.Intersection);
 
         foreach (var clip in bgmList)
@@ -148,18 +149,17 @@ public class SoundManager : MonoBehaviour
                 Debug.LogWarning("BGM 클립 이름이 enum과 일치하지 않습니다: " + clip.name);
         }
 
-        Manager.Instance.AddressableManager.UnloadAssets(bgmLabels);
-        
         Debug.Log($"BGM {_bgmClips.Count}개 로드 완료");
     }
 
     // SFX 클립 로드
     private async Task LoadSFXClips(string sceneName)
     {
-        var sfxLabel = new List<string> { "SFX", sceneName };
-        
+        _sfxLabels.Add("SFX");
+        _sfxLabels.Add(sceneName);
+
         List<AudioClip> sfxList =
-            await Manager.Instance.AddressableManager.LoadGroupAssetsAsync<AudioClip>(sfxLabel,
+            await Manager.Instance.AddressableManager.LoadGroupAssetsAsync<AudioClip>(_sfxLabels,
                 Addressables.MergeMode.Intersection);
 
         foreach (var clip in sfxList)
@@ -170,17 +170,12 @@ public class SoundManager : MonoBehaviour
                 Debug.LogWarning("SFX 클립 이름이 enum과 일치하지 않습니다: " + clip.name);
         }
 
-        Manager.Instance.AddressableManager.UnloadAssets(sfxLabel);
-        
         Debug.Log($"효과음 {_sfxClips.Count}개 로드 완료");
     }
-    #endregion
 
-    #region 효과음 오브젝트 풀 관리
     // 효과음 소스 풀 초기화
     private void InitializeSfxPool()
     {
-        // COUNT 만큼 오디오 소스 생성
         for (int i = 0; i < SFX_SOURCE_COUNT; i++)
         {
             GameObject sfxObject = new GameObject($"SFXSource_{i}");
@@ -190,7 +185,6 @@ public class SoundManager : MonoBehaviour
 
             if (_audioMixer != null)
             {
-                // 오디오 믹서와 오디오 소스 연결
                 AudioMixerGroup[] groups = _audioMixer.FindMatchingGroups("SFX");
                 if (groups.Length > 0)
                     source.outputAudioMixerGroup = groups[0];
@@ -199,51 +193,7 @@ public class SoundManager : MonoBehaviour
             _sfxSourcePool.Enqueue(source);
         }
     }
-    
-    // 오디오 소스 풀에서 가져오기
-    private AudioSource GetSfxSourceFromPool()
-    {
-        if (_sfxSourcePool.Count == 0)
-        {
-            // 활성 오디오 소스 중 재생이 끝난 것이 있는지 확인
-            for (int i = 0; i < _activeSfxSources.Count; i++)
-            {
-                if (!_activeSfxSources[i].isPlaying)
-                {
-                    AudioSource source = _activeSfxSources[i];
-                    _activeSfxSources.RemoveAt(i);
-                    return source;
-                }
-            }
 
-            // 없으면 새로 생성
-            GameObject sfxObject = new GameObject($"SFX_Source_Extra");
-            sfxObject.transform.SetParent(transform);
-            AudioSource sfxSource = sfxObject.AddComponent<AudioSource>();
-            sfxSource.playOnAwake = false;
-            _activeSfxSources.Add(sfxSource);
-            return sfxSource;
-        }
-
-        AudioSource pooledSource = _sfxSourcePool.Dequeue();
-        _activeSfxSources.Add(pooledSource);
-        return pooledSource;
-    }
-
-    // 재생 완료된 소스 풀에 반환
-    private IEnumerator ReturnToPoolWhenFinished(AudioSource source)
-    {
-        yield return new WaitWhile(() => source.isPlaying);
-
-        if (_activeSfxSources.Contains(source))
-        {
-            _activeSfxSources.Remove(source);
-            _sfxSourcePool.Enqueue(source);
-        }
-    }
-    #endregion
-
-    #region BGM/SFX 재생 및 일시정지
     /// <summary>
     /// BGM 재생
     /// </summary>
@@ -331,30 +281,58 @@ public class SoundManager : MonoBehaviour
 
         StartCoroutine(ReturnToPoolWhenFinished(source));
     }
-    
-    /// <summary>
-    /// BGM 일시 정지
-    /// </summary>
-    public void PauseBGM() => _bgmSource.Pause();
-    
-    /// <summary>
-    /// 일시 정지된 BGM 다시 재생
-    /// </summary>
-    public void ResumeBGM() => _bgmSource.UnPause();
-    #endregion
 
-    #region 볼륨 설정 관련
+    // 오디오 소스 풀에서 가져오기
+    private AudioSource GetSfxSourceFromPool()
+    {
+        if (_sfxSourcePool.Count == 0)
+        {
+            // 활성 오디오 소스 중 재생이 끝난 것이 있는지 확인
+            for (int i = 0; i < _activeSfxSources.Count; i++)
+            {
+                if (!_activeSfxSources[i].isPlaying)
+                {
+                    AudioSource source = _activeSfxSources[i];
+                    _activeSfxSources.RemoveAt(i);
+                    return source;
+                }
+            }
+
+            // 없으면 새로 생성
+            GameObject sfxObject = new GameObject($"SFX_Source_Extra");
+            sfxObject.transform.SetParent(transform);
+            AudioSource sfxSource = sfxObject.AddComponent<AudioSource>();
+            sfxSource.playOnAwake = false;
+            _activeSfxSources.Add(sfxSource);
+            return sfxSource;
+        }
+
+        AudioSource pooledSource = _sfxSourcePool.Dequeue();
+        _activeSfxSources.Add(pooledSource);
+        return pooledSource;
+    }
+
+    // 재생 완료된 소스 풀에 반환
+    private IEnumerator ReturnToPoolWhenFinished(AudioSource source)
+    {
+        yield return new WaitWhile(() => source.isPlaying);
+
+        if (_activeSfxSources.Contains(source))
+        {
+            _activeSfxSources.Remove(source);
+            _sfxSourcePool.Enqueue(source);
+        }
+    }
+
     /// <summary>
     /// 마스터 볼륨 설정
     /// </summary>
     /// <param name="volume">설정할 볼륨</param>
     public void SetMasterVolume(float volume)
     {
-        // 볼륨을 0과 1 사이로 제한
         volume = Mathf.Clamp01(volume);
         MasterVolume = volume;
 
-        // 마스터 볼륨을 데시벨로 변환하여 오디오 믹서에 설정 후 PlayerPrefs에 저장
         float dbValue = ConvertToDecibel(volume);
         _audioMixer.SetFloat(MASTER_VOLUME_PARAM, dbValue);
         PlayerPrefs.SetFloat(MASTER_VOLUME_PARAM, MasterVolume);
@@ -367,11 +345,9 @@ public class SoundManager : MonoBehaviour
     /// <param name="volume">설정할 볼륨</param>
     public void SetBGMVolume(float volume)
     {
-        // 볼륨을 0과 1 사이로 제한
         volume = Mathf.Clamp01(volume);
         BGMVolume = volume;
 
-        // 배경음 볼륨을 데시벨로 변환하여 오디오 믹서에 설정 후 PlayerPrefs에 저장
         float dbValue = ConvertToDecibel(volume);
         _audioMixer.SetFloat(BGM_VOLUME_PARAM, dbValue);
         PlayerPrefs.SetFloat(BGM_VOLUME_PARAM, BGMVolume);
@@ -384,18 +360,15 @@ public class SoundManager : MonoBehaviour
     /// <param name="volume">설정할 볼륨</param>
     public void SetSFXVolume(float volume)
     {
-        // 볼륨을 0과 1 사이로 제한
         volume = Mathf.Clamp01(volume);
         SFXVolume = volume;
 
-        // 효과음 볼륨을 데시벨로 변환하여 오디오 믹서에 설정 후 PlayerPrefs에 저장
         float dbValue = ConvertToDecibel(volume);
         _audioMixer.SetFloat(SFX_VOLUME_PARAM, dbValue);
         PlayerPrefs.SetFloat(SFX_VOLUME_PARAM, SFXVolume);
         PlayerPrefs.Save();
     }
 
-    // PlayerPrefs에 저장된 볼륨 설정 가져오기
     private void LoadVolumeSetting()
     {
         MasterVolume = PlayerPrefs.GetFloat(MASTER_VOLUME_PARAM, 1);
@@ -404,13 +377,81 @@ public class SoundManager : MonoBehaviour
     }
     
     // 볼륨(0-1)을 데시벨(-80-0)로 변환
-    private float ConvertToDecibel(float linearVolume) => linearVolume > 0.0001f ? Mathf.Log10(linearVolume) * 20f : -80f;
-    #endregion
+    private float ConvertToDecibel(float linearVolume)
+    {
+        return linearVolume > 0.0001f ? Mathf.Log10(linearVolume) * 20f : -80f;
+    }
+
+    /// <summary>
+    /// 모든 볼륨 음소거 or 음소거 해제
+    /// </summary>
+    /// <param name="mute">true = 음소거</param>
+    public void MuteAll(bool mute)
+    {
+        if (mute)
+        {
+            _audioMixer.SetFloat(MASTER_VOLUME_PARAM, -80f);
+        }
+        else
+        {
+            float dbValue = ConvertToDecibel(MasterVolume);
+            _audioMixer.SetFloat(MASTER_VOLUME_PARAM, dbValue);
+        }
+    }
+
+    /// <summary>
+    /// 배경음 볼륨 음소거 or 음소거 해제
+    /// </summary>
+    /// <param name="mute">true = 음소거</param>
+    public void MuteBGM(bool mute)
+    {
+        if (mute)
+        {
+            _audioMixer.SetFloat(BGM_VOLUME_PARAM, -80f);
+        }
+        else
+        {
+            float dbValue = ConvertToDecibel(BGMVolume);
+            _audioMixer.SetFloat(BGM_VOLUME_PARAM, dbValue);
+        }
+    }
     
-    #region 씬 이벤트
+    /// <summary>
+    /// 배경음 일시 정지
+    /// </summary>
+    public void PauseBGM() => _bgmSource.Pause();
+    
+    /// <summary>
+    /// 일시 정지된 배경음 다시 재생
+    /// </summary>
+    public void ResumeBGM() => _bgmSource.UnPause();
+    
+    private void ReleaseLoadedAssets()
+    {
+        if(SceneBase.Current is LoadingScene) return;
+        if (_bgmClips.Count == 0 && _sfxClips.Count == 0) return;
+
+        if (_bgmLabels.Count > 0 && _sfxLabels.Count > 0)
+        {
+            Manager.Instance.AddressableManager.UnloadAssets(_bgmLabels);
+            Manager.Instance.AddressableManager.UnloadAssets(_sfxLabels);
+        }
+        
+        if (_bgmLabel != string.Empty && _sfxLabel != string.Empty)
+        {
+            Manager.Instance.AddressableManager.UnloadAssets(_bgmLabel);
+            Manager.Instance.AddressableManager.UnloadAssets(_sfxLabel);
+        }
+
+        _bgmLabels.Clear();
+        _sfxLabels.Clear();
+
+        _bgmClips.Clear();
+        _sfxClips.Clear();
+    }
+
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // 씬 로드 후 BGM과 SFX 클립 초기화 및 BGM 재생
         if (SceneManager.GetActiveScene().buildIndex != 1)
         {
             InitializeAudioClips(SceneManager.GetActiveScene().name);
@@ -421,23 +462,12 @@ public class SoundManager : MonoBehaviour
     private void OnSceneUnloaded(Scene scene)
     {
         StartCoroutine(FadeOutBGM());
-        ClearClips();
+        ReleaseLoadedAssets();
     }
-    
+
     private void OnDestroy()
     {
         SceneManager.sceneUnloaded -= OnSceneUnloaded;
         SceneManager.sceneLoaded -= OnSceneLoaded;
-    }
-    #endregion
-    
-    // 씬이 언로드 될 때 BGM과 SFX 클립 초기화
-    private void ClearClips()
-    {
-        if(SceneBase.Current is LoadingScene) return;
-        if (_bgmClips.Count == 0 && _sfxClips.Count == 0) return;
-
-        _bgmClips.Clear();
-        _sfxClips.Clear();
     }
 }

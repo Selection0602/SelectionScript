@@ -34,8 +34,6 @@ public class NodeTable : ScriptableObject
     [SerializeField] private int _extraNodeProbability; // 특수 노드 등장 확률
     public int ExtraNodeProbability => _extraNodeProbability;
     
-    private bool _isInitialized = false; // 초기화 여부
-
     public void Initialize()
     {
         NodeTypeDataDict.Clear();

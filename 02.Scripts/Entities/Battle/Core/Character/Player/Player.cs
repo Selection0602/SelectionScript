@@ -88,6 +88,12 @@ public abstract class Player : CharacterBase
     {
         return _deckHandler.IsFullDeck();
     }
+
+    public int GetAvailableDrawCount(int amount)
+    {
+        return _deckHandler.GetAvailableDrawCount(amount);
+    }
+
     public Task UseCard()
     {
         return default;

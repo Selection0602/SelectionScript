@@ -34,8 +34,8 @@ public class BattleManager : MonoBehaviour
     public ICardDistributor EnemyDistributor { get; set; }
 
     //카드 뽑기 횟수
-    public int PlayerDrawCount { get; set; } = 1;
-    private int _enemyDrawCount { get; set; } = 1;
+    public int PlayerDrawCount { get; set; } = 2;
+    private int _enemyDrawCount { get; set; } = 2;
 
     public async void GameInitialize(NodeType type)
     {
@@ -220,6 +220,4 @@ public class BattleManager : MonoBehaviour
     {
         (SceneBase.Current as BattleSceneController).MoveNextScene(isClear);
     }
-
-
 }

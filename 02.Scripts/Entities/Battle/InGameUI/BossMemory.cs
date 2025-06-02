@@ -13,6 +13,7 @@ public class BossMemory : MonoBehaviour
 
     public void SelectMemory()
     {
+        Manager.Instance.DataManager.AddMemory(_memoryData);
         (SceneBase.Current as BattleSceneController).MoveNextScene(_memoryData);
     }
 }

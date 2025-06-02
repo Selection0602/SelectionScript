@@ -40,7 +40,7 @@ public static class BootyEffectRegistrar
         BootyEffectRegistry.Register("CoolingSpray", Effect_CoolingSpray);
         BootyEffectRegistry.Register("SelfDiagnosiskit", Effect_SelfDiagnosiskit);
         BootyEffectRegistry.Register("LoveLetter", Effect_LoveLetter);
-        BootyEffectRegistry.Register("LumpOfDesireReward", Effect_LumpOfDesireReward);
+        BootyEffectRegistry.Register("LumpOfDesire", Effect_LumpOfDesireReward);
     }
 
     private static void Effect_SpellLump(BootyEffectContext context)

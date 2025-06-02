@@ -84,6 +84,8 @@ public class StartUI : BaseUI, IStartView
     {
         base.Initialize();
 
+        InitObj();
+
         // 버튼 액션 설정
         foreach (var btn in buttons.dataList)
         {
@@ -231,18 +233,17 @@ public class StartUI : BaseUI, IStartView
         // 패널들을 담을 리스트
         List<GameObject> activePanels = new List<GameObject>();
 
+        var CreditManager = Manager.Instance.CreditManager;
+
         for (int i = 0; i < sortedMiniGames.Count; i++)
         {
             var data = sortedMiniGames[i];
             int index = data.index;
             string title = data.title;
-            bool isLocked = data.IsLocked;
+            bool isLocked = Manager.Instance.CreditManager.IsMiniGameLocked(index);
 
             var panelObj = creditPanelPool.GetPanel();
-            if (panelObj == null)
-            {
-                continue;
-            }
+            if (panelObj == null) continue;
 
             var panel = panelObj.GetComponent<CreditPanel>();
             panel.isLocked = isLocked;

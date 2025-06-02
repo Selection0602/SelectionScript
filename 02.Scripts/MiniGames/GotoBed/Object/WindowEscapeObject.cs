@@ -67,8 +67,11 @@ public class WindowEscapeObject : BaseInteractObject
     //탈출시키는 함수
     public override void DisplayNextTalk()
     {
-
-        if (_currentSituation == 1) GameClear?.Invoke();            //문 닫기 체크 X
+        //문 닫기 체크 X
+        if (_currentSituation == 1)
+        {
+            GameClear?.Invoke();
+        }
         else if (_currentSituation == 2) GameClear?.Invoke();       //문 닫기 체크 O && 문 잠금 체크 X
         else
         {

@@ -21,6 +21,8 @@ public class GBManager : MonoBehaviour
 
     private void Start()
     {
+        Manager.Instance.CreditManager.UnlockMiniGameAndSave(3);
+
         _darkPanel.SetActive(false);
         Manager.Instance.SoundManager.PlayBGM(BGMType.BGM_MiniGame);
         coroutine = StartCoroutine(ShowSimulText());

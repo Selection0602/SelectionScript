@@ -22,7 +22,8 @@ public class DrawCards : ICommand
     {
         //현재 가지고 있는 카드패의 수가 최대이면 드로우 불가능
         if (_drawer.IsFullDeck()) return;
-        await _drawer.DrawCard(_amount, _isFirstTurn);
+        int drawCount = _drawer.GetAvailableDrawCount(_amount);
+        await _drawer.DrawCard(drawCount, _isFirstTurn);
     }
 
     public void Undo()

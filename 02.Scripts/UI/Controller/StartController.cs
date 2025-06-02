@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor.Rendering.LookDev;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -13,7 +13,6 @@ public class StartController : ControllerUI
 {
     #region --------------------------- 변수 및 구조체 ---------------------------
     public StartUI startUI;
-
     private IStartView _view;
 
     [SerializeField] private bool isFirst;
@@ -71,6 +70,8 @@ public class StartController : ControllerUI
         // 엔딩과 미니게임 SO 로드
         await LoadEndingSOs();
         await LoadMiniGameSOs();
+        
+        await LoadDatas();
 
         _view.Initialize();
         startUI.OnClickButton += OnButtonClicked;
@@ -92,6 +93,44 @@ public class StartController : ControllerUI
     }
     #endregion
     #region --------------------------- 어드레서블 로드 ---------------------------
+
+    private async Task LoadDatas()
+    {
+        await LoadRewardDatas();
+        await LoadMemoryDatas();
+    }
+    private async Task LoadRewardDatas()
+    {
+        var bootyIcons = await Manager.Instance.AddressableManager.Load<SpriteAtlas>("BootyIcons");
+        var rewardImages = await Manager.Instance.AddressableManager.Load<SpriteAtlas>("RewardImages");
+        var rewardDatas = await Manager.Instance.AddressableManager.GetHandleResultList<RewardSO>("Reward");
+
+        foreach (var data in rewardDatas)
+        {
+            if (data.TypeValue != RewardType.Card)
+            {
+                data.Image = rewardImages.GetSprite($"{data.FileName}");
+            }
+
+            if (data.TypeValue == RewardType.Booty)
+            {
+                data.Icon = bootyIcons.GetSprite($"{data.FileName}");
+            }
+        }
+    }
+    private async Task LoadMemoryDatas()
+    {
+        var memoryImages = await Manager.Instance.AddressableManager.Load<SpriteAtlas>("MemoryImages");
+        var memoryDatas = await Manager.Instance.AddressableManager.GetHandleResultList<MemorySO>("MemoryData");
+        
+        foreach (var data in memoryDatas)
+        {
+            if (data.Image == null)
+            {
+                data.Image = memoryImages.GetSprite($"{data.FileName}");
+            }
+        }
+    }
     private async System.Threading.Tasks.Task LoadEndingSOs()
     {
         var handle = Addressables.LoadAssetsAsync<EndingSO>("Ending", null);
@@ -176,11 +215,6 @@ public class StartController : ControllerUI
     {
         var labelMapping = new AssetLabelMapping[]
         {
-            new AssetLabelMapping
-            {
-                label = "NodeType",
-                assetType = AssetType._NodeTypeDataSO
-            },
             new AssetLabelMapping
             {
                 label = "Character",

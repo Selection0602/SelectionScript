@@ -17,7 +17,6 @@ public class AddDataTest
                     {
                         FileName = booty.FileName,
                         Image = booty.Image,
-                        Icon = booty.Icon,
                         Index = booty.Index,
                         RewardName = booty.RewardName,
                         Desc = booty.Desc,
@@ -32,7 +31,7 @@ public class AddDataTest
                         GetCard = booty.GetCard,
                         GetCardIndex = booty.GetCardIndex,
                         TypeValue = booty.TypeValue,
-                        CardDrawIndex = booty.CardDrawIndex
+                        CardDrawIndex=booty.CardDrawIndex
                     };
 
                     Manager.Instance.DataManager.AddBooty(reward);
